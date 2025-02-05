@@ -1,33 +1,134 @@
-# Gradle files
-.gradle/
-build/
+import 'package:flutter/material.dart';
 
-# Local configuration file (sdk path, etc)
-local.properties
+void main() {
+  runApp(MyApp());
+}
 
-# Log/OS Files
-*.log
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Домашняя библиотека',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: HomeLibrary(),
+    );
+  }
+}
 
-# Android Studio generated files and folders
-captures/
-.externalNativeBuild/
-.cxx/
-*.apk
-output.json
+class HomeLibrary extends StatefulWidget {
+  @override
+  _HomeLibraryState createState() => _HomeLibraryState();
+}
 
-# IntelliJ
-*.iml
-.idea/
-misc.xml
-deploymentTargetDropDown.xml
-render.experimental.xml
+class _HomeLibraryState extends State<HomeLibrary> {
+  // Список книг
+  List<Book> books = [];
 
-# Keystore files
-*.jks
-*.keystore
+  // Контроллеры для ввода данных о книге
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController authorController = TextEditingController();
+  final TextEditingController genreController = TextEditingController();
 
-# Google Services (e.g. APIs or Firebase)
-google-services.json
+  // Метод для добавления книги
+  void _addBook() {
+    // Проверка на пустые поля
+    if (titleController.text.isEmpty  ) {
+      return; // Если одно из полей пустое, не добавляем книгу
+    }
 
-# Android Profiling
-*.hprof
+    setState(() {
+      // Добавляем книгу в список
+      books.add(Book(
+        title: titleController.text,
+        author: authorController.text,
+        genre: genreController.text,
+      ));
+      // Очищаем поля после добавления
+      titleController.clear();
+      authorController.clear();
+      genreController.clear();
+    });
+  }
+
+  // Метод для удаления книги
+  void _removeBook(int index) {
+    setState(() {
+      books.removeAt(index);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Домашняя библиотека'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Поле ввода для названия книги
+            TextField(
+              controller: titleController,
+              decoration: InputDecoration(labelText: 'Название книги'),
+            ),
+            // Поле ввода для автора книги
+            TextField(
+              controller: authorController,
+              decoration: InputDecoration(labelText: 'Автор книги'),
+            ),
+            // Поле ввода для жанра книги
+            TextField(
+              controller: genreController,
+              decoration: InputDecoration(labelText: 'Жанр книги'),
+            ),
+            SizedBox(height: 16),
+            // Кнопка для добавления книги
+            ElevatedButton(
+              onPressed: _addBook,
+              child: Text('Добавить книгу'),
+            ),
+            SizedBox(height: 20),
+            // Заголовок для списка книг
+            Text(
+              'Список книг:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            // Список книг
+            Expanded(
+              child: ListView.builder(
+                itemCount: books.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(books[index].title),
+                    subtitle: Text('${books[index].author} - ${books[index].genre}'),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () => _removeBook(index), // Удаление книги
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Класс модели для книги
+class Book {
+  final String title;
+  final String author;
+  final String genre;
+
+  Book({
+    required this.title,
+    required this.author,
+    required this.genre,
+  });
+}
